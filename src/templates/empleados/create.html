@@ -1,4 +1,12 @@
-<form method="post" action="/create" enctype="multipart/form-data">
+<form method="post" action="/store" enctype="multipart/form-data">
     <label for="txtNombre">Nombre: </label>
     <input type="text" name="txtNombre" id="txtNombre">
+    <br>
+    <label for="txtCorreo">Correo: </label>
+    <input type="email" name="txtCorreo" id="txtCorreo">
+    <br>
+    <label for="txtFoto">Foto: </label>
+    <input type="file" name="txtFoto" id="txtFoto">
+    <br>
+    <input type="submit" value="Agregar nuevo empleado">
 </form>
