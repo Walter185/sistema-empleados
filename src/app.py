@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from flaskext.mysql import MySQL
 from datetime import datetime
 import os
@@ -11,10 +11,14 @@ app.config['MYSQL_DATABASE_USER']='root'
 app.config['MYSQL_DATABASE_PASSWORD']=''
 app.config['MYSQL_DATABASE_DB']='empleados'
 
-UPLOADS= os.path.join('uploads')
+UPLOADS= os.path.join('src/uploads')
 app.config['UPLOADS'] = UPLOADS
 
 mysql.init_app(app)
+
+@app.route('/fotodeusuario/<path:nombreFoto>')
+def uploads(nombreFoto):
+    return send_from_directory(os.path.join('uploads'), nombreFoto)
 
 @app.route('/')
 def index():
@@ -39,6 +43,7 @@ def store():
     _foto = request.files['txtFoto']
 
     now = datetime.now()
+    print(now)
     tiempo = now.strftime("%Y%H%M%S")
     print(tiempo)
 
@@ -48,7 +53,7 @@ def store():
 
 
     sql = "INSERT INTO empleados (nombre, correo, foto) values (%s, %s, %s);"
-    datos = (_nombre, _correo, _foto.filename)
+    datos = (_nombre, _correo, nuevoNombreFoto)
 
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -69,7 +74,7 @@ def delete(id):
     nombreFoto = cursor.fetchone()[0]
 
     try:
-        os.remove(os.path.join(app.config['uploads'],nombreFoto))
+        os.remove(os.path.join(app.config['UPLOADS'],nombreFoto))
     except:
         pass
 
@@ -111,11 +116,11 @@ def update():
         conn.commit()
 
         nomnbreFoto = cursor.fetchone()[0]
-        borrarEstaFoto = os.path.join(app.config['uploads'], nomnbreFoto)
+        borrarEstaFoto = os.path.join(app.config['UPLOADS'], nomnbreFoto)
         print(borrarEstaFoto)
 
         try:
-            os.remove(os.path.join(app.config['uploads'], nomnbreFoto))
+            os.remove(os.path.join(app.config['UPLOADS'], nomnbreFoto))
         except:
             pass
 
