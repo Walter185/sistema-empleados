@@ -11,7 +11,7 @@ app.config['MYSQL_DATABASE_USER']='root'
 app.config['MYSQL_DATABASE_PASSWORD']=''
 app.config['MYSQL_DATABASE_DB']='empleados'
 
-UPLOADS= os.path.join('src/uploads')
+UPLOADS= os.path.join('uploads')
 app.config['UPLOADS'] = UPLOADS
 
 mysql.init_app(app)
@@ -63,15 +63,16 @@ def delete(id):
     conn = mysql.connect()
     cursor = conn.cursor() 
 
-    sql = f'SELECT foto FROM empleados WHERE id="{id}"'
+    sql = f'SELECT foto FROM empleados WHERE id="{id}";'
     cursor.execute(sql)
 
     nombreFoto = cursor.fetchone()[0]
+
     try:
-        os.remove(os.path.join(app.config['UPLOADS'], nombreFoto))
+        os.remove(os.path.join(app.config['uploads'],nombreFoto))
     except:
-        pass    
-    
+        pass
+
     sql = f'DELETE FROM empleados WHERE id={id}'
     cursor.execute(sql)
     conn.commit()
@@ -81,7 +82,7 @@ def delete(id):
 
 @app.route('/modify/<int:id>')
 def modify(id):
-    sql = f'SELECT * FROM empleados WHERE id={id}'
+    sql = f'SELECT * FROM empleados WHERE id="{id}"'
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(sql)
@@ -96,8 +97,6 @@ def update():
     _foto = request.files['txtFoto']
     id = request.form['txtId']
 
-    # datos = (_nombre, _correo, id)
-
     conn = mysql.connect()
     cursor = conn.cursor()
 
@@ -109,16 +108,21 @@ def update():
 
         sql = f'SELECT foto FROM empleados WHERE id="{id}"'
         cursor.execute(sql)
+        conn.commit()
 
         nomnbreFoto = cursor.fetchone()[0]
-        borrarEstaFoto = os.path.join(app.config['UPLOADS'],
-        nomnbreFoto)
+        borrarEstaFoto = os.path.join(app.config['uploads'], nomnbreFoto)
         print(borrarEstaFoto)
 
-        os.remove(os.path.join(app.config['UPLOADS'], nomnbreFoto))
+        try:
+            os.remove(os.path.join(app.config['uploads'], nomnbreFoto))
+        except:
+            pass
 
-        conn = mysql.connect()
-        cursor = conn.cursor()
+        sql = f'UPDATE empleados SET foto="{nuevoNombreFoto}" WHERE id="{id}";'
+        cursor.execute(sql)
+        conn.commit()
+
 
     sql = f'UPDATE empleados SET nombre="{_nombre}", correo="{_correo}" WHERE id="{id}"'
     cursor.execute(sql)
